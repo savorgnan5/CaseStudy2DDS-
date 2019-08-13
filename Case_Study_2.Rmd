@@ -2,25 +2,575 @@
 title: "Case Study 2"
 author: "Fabio"
 date: "8/2/2019"
-output: html_document
+output:  html_document:
+    toc: TRUE
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+    theme: paper
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = F)
+knitr::opts_chunk$set(message = F)
 ```
 
 
+```{r, echo= TRUE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(reshape2)
+library(tidyverse)
+library(stringr)
+library(caret)
+library(fpp2)
+library(dygraphs)
+library(xts)
+library(pander)
+library(purrr)
+library(ggthemes)
+library(gridExtra)
+library(cowplot)
+library(RColorBrewer)
+library(gplots)
+library(corrplot) 
+library(functional)
+library(fastNaiveBayes)
+library(ggpubr)
+```
 
-
-
+### Loading the data
 ```{r, echo= TRUE}
 dfdata<- readr::read_csv("CaseStudy2-data.csv")
 head(dfdata)
 ```
 
-## Including Plots
+
+#### Atrittion calculation
+
+```{r, echo= TRUE}
+dfdata %>% count(Attrition) ->att
+att
+```
+
+
+
+
+### Exploratory plot for Attrition
 
 You can also embed plots, for example:
+
+```{r, echo= TRUE}
+agePlot <- ggplot(dfdata,aes(Age,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") #maybe
+agePlot
+travelPlot <- ggplot(dfdata,aes(BusinessTravel,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")
+travelPlot
+ratePlot <- ggplot(dfdata,aes(DailyRate, fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium")
+ratePlot
+depPlot <- ggplot(dfdata,aes(Department,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")
+depPlot
+distPlot<- ggplot(dfdata,aes(DistanceFromHome,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") # important
+distPlot
+eduPlot <- ggplot(dfdata,aes(Education,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") #maybe
+eduPlot
+edufieldPlot <- ggplot(dfdata,aes(EducationField,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# important
+edufieldPlot
+envPlot <- ggplot(dfdata,aes(EnvironmentSatisfaction,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# maybe
+envPlot
+genPlot <- ggplot(dfdata,aes(Gender,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") #maybe
+genPlot
+hourlyPlot <- ggplot(dfdata,aes(HourlyRate,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") #maybe
+hourlyPlot
+jobInvPlot <- ggplot(dfdata,aes(JobInvolvement,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") #important
+jobInvPlot
+jobLevelPlot <- ggplot(dfdata,aes(JobLevel,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") # important
+jobLevelPlot
+jobSatPlot <- ggplot(dfdata,aes(JobSatisfaction,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") # important
+jobSatPlot
+overTimePlot <- ggplot(dfdata,aes(OverTime,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium") # important
+overTimePlot
+hikePlot <- ggplot(dfdata,aes(PercentSalaryHike, fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium")# important
+hikePlot
+perfPlot <- ggplot(dfdata,aes(PerformanceRating,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# maybe
+perfPlot
+RelSatPlot <- ggplot(dfdata,aes(RelationshipSatisfaction,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# important
+RelSatPlot
+StockPlot <- ggplot(dfdata,aes(StockOptionLevel,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# important
+StockPlot
+workingYearsPlot <- ggplot(dfdata,aes(TotalWorkingYears,fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium")# important
+workingYearsPlot
+TrainTimesPlot <- ggplot(dfdata,aes(TrainingTimesLastYear,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")
+TrainTimesPlot
+ WLBPlot<- ggplot(dfdata,aes(WorkLifeBalance,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")# important
+  WLBPlot
+marPlot <- ggplot(dfdata,aes(MaritalStatus,fill=Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")#maybe
+marPlot
+monthlyIncPlot <- ggplot(dfdata,aes(MonthlyIncome,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium")# important
+monthlyIncPlot
+monthlyRatePlot <- ggplot(dfdata,aes(MonthlyRate,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium")
+monthlyRatePlot
+numCompPlot <- ggplot(dfdata,aes(NumCompaniesWorked,fill=Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") # important
+numCompPlot
+YearAtComPlot <- ggplot(dfdata,aes(YearsAtCompany,fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") # important
+YearAtComPlot
+YearInCurrPlot <- ggplot(dfdata,aes(YearsInCurrentRole,fill = Attrition))+geom_bar()+theme_tufte()+scale_fill_few("Medium")
+YearInCurrPlot
+YearsSinceProm <- ggplot(dfdata,aes(YearsSinceLastPromotion,fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") #maybe
+YearsSinceProm 
+YearsCurrManPlot <- ggplot(dfdata,aes(YearsWithCurrManager,fill = Attrition))+geom_density()+theme_tufte()+scale_fill_few("Medium") # important
+YearsCurrManPlot
+
+```
+```{r, echo= TRUE}
+myplot <- ggplot(dfdata, aes(BusinessTravel, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(Department, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(Education, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(EducationField, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(EnvironmentSatisfaction, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # maybe
+myplot <- ggplot(dfdata, aes(Gender, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(JobInvolvement, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(JobLevel, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # important
+
+myplot <- ggplot(dfdata, aes(JobSatisfaction, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(OverTime, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # important
+
+myplot <- ggplot(dfdata, aes(RelationshipSatisfaction, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(StockOptionLevel, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # important
+
+myplot <- ggplot(dfdata, aes(WorkLifeBalance, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(MaritalStatus, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # maybe
+
+myplot <- ggplot(dfdata, aes(YearsInCurrentRole, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot #maybe
+
+myplot <- ggplot(dfdata, aes(YearsWithCurrManager, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # important
+
+myplot <- ggplot(dfdata, aes(YearsAtCompany, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # important/maybe
+
+myplot <- ggplot(dfdata, aes(NumCompaniesWorked, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(TrainingTimesLastYear, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+myplot <- ggplot(dfdata, aes(TotalWorkingYears, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # maybe
+
+myplot <- ggplot(dfdata, aes(DistanceFromHome, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot # maybe
+
+myplot <- ggplot(dfdata, aes(Age, group = Attrition)) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~Attrition)
+
+myplot
+
+
+
+myplot <- ggplot(dfdata, aes(EducationField, group = JobSatisfaction )) + 
+          geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat="count") + 
+          scale_y_continuous(labels=scales::percent) +
+          ylab("relative frequencies") +
+          facet_grid(~JobSatisfaction)
+
+myplot
+
+```
+
+
+### Ecploratory plot for Montly income. This is with numerical values
+
+```{r, echo= TRUE}
+ys <- names(dfdata)[c(2, 5, 7, 14, 20, 21, 22, 25, 30, 31, 33, 34, 35, 36)]
+ys %>% map(function(y) 
+  ggplot(dfdata , aes(MonthlyIncome)) + geom_point(aes_string(y=y)))
+
+```
+#### More exploratory data for montly income with heatmap for numerical values
+
+
+```{r, echo= TRUE}
+dfn <-dfdata[c(2, 5, 7, 14, 20, 21, 22, 25, 30, 31, 33, 34, 35, 36 )]
+
+my_palette <- colorRampPalette(c("red", "white", "black"))
+heatmapper <- function(df){
+  df %>%
+    keep(is.numeric) %>%
+    tidyr::drop_na() %>%
+    cor %>%
+    heatmap.2(col = my_palette ,
+              density.info = "none", trace = "none",
+              dendogram = c("both"), symm = F,
+              symkey = T, symbreaks = T, scale = "none",
+              key = T)
+}
+
+
+heatmapper(dfn)
+```
+
+#### More exploratory data for montly income with corrplot for numerical values
+
+```{r, echo= TRUE}
+correlator  <-  function(df){
+  df %>%
+    keep(is.numeric) %>%
+    tidyr::drop_na() %>%
+    cor %>%
+    corrplot( addCoef.col = "white", number.digits = 2,
+              number.cex = 0.5, method="square",
+              order="hclust", title="Variable Corr Heatmap",
+              tl.srt=45, tl.cex = 0.8)
+}
+
+correlator(dfn)
+```
+#### More exploratory data for montly income with ggplot numeric for numerical values 
+
+```{r, echo= TRUE}
+plotAllNumeric <- function(df){
+  df%>%keep(is.numeric) %>%
+    gather() %>%
+    ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_density()+geom_histogram() + theme_fivethirtyeight()
+}
+
+
+plotAllNumeric(dfn)
+```
+
+#### More exploratory data for montly income for categorical values
+
+```{r, echo= TRUE}
+dfdata %>% keep(is.factor) %>% names -> label
+ggplot(data = dfdata, aes(x = BusinessTravel, y = MonthlyIncome, fill =BusinessTravel )) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = Department, y = MonthlyIncome, fill = Department)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(Education), y = MonthlyIncome, fill = as.factor(Education))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few() # important
+ggplot(data = dfdata, aes(x = EducationField, y = MonthlyIncome, fill = EducationField)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(EnvironmentSatisfaction), y = MonthlyIncome, fill = as.factor(EnvironmentSatisfaction))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = Gender, y = MonthlyIncome, fill = Gender)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(JobInvolvement), y = MonthlyIncome, fill = as.factor(JobInvolvement))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(JobLevel), y = MonthlyIncome, fill = as.factor(JobLevel))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few() # important
+ggplot(data = dfdata, aes(x = JobRole, y = MonthlyIncome, fill = JobRole)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()# important
+ggplot(data = dfdata, aes(x = as.factor(JobSatisfaction), y = MonthlyIncome, fill = as.factor(JobSatisfaction))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = MaritalStatus, y = MonthlyIncome, fill = MaritalStatus)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = OverTime, y = MonthlyIncome, fill = OverTime)) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(PerformanceRating), y = MonthlyIncome, fill = as.factor(PerformanceRating))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few() #maybe
+ggplot(data = dfdata, aes(x = as.factor(RelationshipSatisfaction), y = MonthlyIncome, fill = as.factor(RelationshipSatisfaction))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+ggplot(data = dfdata, aes(x = as.factor(StockOptionLevel), y = MonthlyIncome, fill = as.factor(StockOptionLevel))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few() # maybe
+ggplot(data = dfdata, aes(x = as.factor(WorkLifeBalance), y = MonthlyIncome, fill =as.factor(WorkLifeBalance))) + geom_boxplot() + scale_fill_few(palette = "Dark") + theme_few()
+```
+
+
+### Cutting the variables for the dataframe that will be used in the model, witht the intention to have better performance of the model.
+
+```{r, echo= TRUE}
+dfdata$YearsInCurrentRole<- cut(as.numeric(dfdata$YearsInCurrentRole), breaks = c(-1,1,100))
+dfdata$TotalWorkingYears<- cut(as.numeric(dfdata$TotalWorkingYears), breaks = c(-1,1,100))
+dfdata$YearsWithCurrManager<- cut(as.numeric(dfdata$YearsWithCurrManager), breaks = c(-1,1,100))
+dfdata %>% filter(MaritalStatus %in% c("Single", "Divorce"))-> MaritalStatus
+dfdata$MaritalStatus <- as.factor(dfdata$MaritalStatus)
+levels(dfdata$MaritalStatus) <- c("NotMarried", "Married", "NotMarried")
+
+```
+
+### Stting the dataframe for the model. After a lot of trial, this was the best model for attrition, we used Naive base model.
+
+```{r, echo= TRUE}
+clasy<- dfdata[c("Attrition", "StockOptionLevel", "JobLevel", "MonthlyIncome", "OverTime")]
+
+clasy[c("Attrition","StockOptionLevel", "JobLevel", "OverTime")] <- lapply(clasy[c("Attrition","StockOptionLevel", "JobLevel", "OverTime")], as.factor)
+head(clasy)
+```
+
+### Split the train and test data
+
+```{r, echo= TRUE}
+set.seed(3033)
+split <- function(df, p = 0.75, list = FALSE, ...) {
+  train_ind <- createDataPartition(df[[1]], p = p, list = list)
+  cat("creating training dataset...\n")
+  training <<- df[train_ind, ]
+  cat("completed training dataset, creating test set\n")
+  test <<- df[-train_ind, ]
+  cat("done")
+}
+
+split(clasy)
+```
+
+### We run the Naive bayes model
+```{r, echo= TRUE}
+library(doParallel)
+numcores <- parallel::detectCores() - 1
+cl <- makePSOCKcluster(numcores)
+registerDoParallel(cl)
+
+
+set.seed(3333)
+trainMethod <- trainControl( method = "repeatedcv", number = 25, repeats = 5, summaryFunction = twoClassSummary, classProbs = TRUE)
+
+fit.nb1 <- train(Attrition ~ .,  data = training, method = "nb", metric = "Spec", trControl = trainMethod)
+
+fit.nb1
+
+plot(fit.nb1)
+```
+
+### Sensitivity : 0.7473          
+### Specificity : 0.6857
+### Accuracy : 0.7373
+```{r, echo= TRUE}
+test_pred <- predict(fit.nb1, newdata = test)
+test_pred
+confusionMatrix(test_pred, test$Attrition)
+stopCluster(cl)
+```
+
+
+### The top three variables related to Atrittion are the folloeing =  over time, monthly income, and stockoption level.I got this conclusion after the visualization of the data above, the trial and error in the model and this forest mean decreased accuracy.
+
+```{r, echo= TRUE}
+library(randomForest)
+randomForest(Attrition ~ ., data = clasy, importance = TRUE,
+             ntree=2000)-> forest1
+varImpPlot(forest1)
+
+```
+
+
+### Setting the dataframe for monthly income, we will use regression.
+
+```{r, echo= TRUE}
+dfdata<- readr::read_csv("CaseStudy2-data.csv")
+reg <- dfdata[c("TotalWorkingYears", "YearsAtCompany", "Age", "Education", "JobLevel", "JobRole", "MonthlyIncome", "PerformanceRating", "StockOptionLevel" )]
+
+reg[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")] <- lapply(reg[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")], as.factor)
+
+reg
+```
+
+### Train and test split
+
+```{r, echo= TRUE}
+set.seed(3033)
+split <- function(df, p = 0.75, list = FALSE, ...) {
+  train_ind <- createDataPartition(df[[1]], p = p, list = list)
+  cat("creating training dataset...\n")
+  training <<- df[train_ind, ]
+  cat("completed training dataset, creating test set\n")
+  test <<- df[-train_ind, ]
+  cat("done")
+}
+
+split(reg)
+```
+
+
+
+### After alot of trial and error and review of the visualization above we picked up the best model, which is the one below.
+### RMSE = 927.0692
+
+```{r, echo= TRUE}
+regincome1 <- lm( MonthlyIncome ~ TotalWorkingYears + JobLevel + JobRole, data  = training)
+summary(regincome1)
+pred <- predict(regincome1, newdata = test)
+str(pred)
+ASA2 <- mean((pred[1:nrow(test)] - test$MonthlyIncome)^2)
+sqrt(ASA2)
+```
+
+
+### AIC and BIC
+
+```{r, echo= TRUE}
+AIC(regincome1)
+BIC(regincome1)
+```
+
+
+### We run our model against the test data
+
+```{r, echo= TRUE}
+pred2 <- predict(regincome1, newdata = test)
+pred2
+```
+
+
+
+```{r, echo= TRUE}
+noinc <- read_csv("CaseStudy2CompSet No Salary (2).csv")
+noinc[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")] <- lapply(noinc[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")], as.factor)
+noinc
+preds <-predict(regincome1, newdata =  noinc)
+preddf <- data.frame(predicted = preds, ID = noinc$ID)
+preddf <- preddf %>% arrange(ID)
+write.csv(preddf, "Case2PredictionsSavorgnanSalary.csv")
+```
+
+
+
+
+```{r, echo= TRUE}
+library(readr)
+noatt <- read_csv("CaseStudy2CompSet No Attrition.csv")
+noatt[c("StockOptionLevel", "JobLevel", "OverTime")] <- lapply(noatt[c("StockOptionLevel", "JobLevel", "OverTime")], as.factor)
+head(noatt)
+```
+
+
+
+```{r, echo= TRUE}
+test_preda <- predict(fit.nb1, newdata = noatt)
+test_preda
+predi <- data.frame(predicted = test_preda, ID = noatt$ID)
+predited <- predi %>% arrange(ID)
+
+
+```
+
+
+```{r, echo= TRUE}
+
+write.csv(predited,"Case2PredictionsSavorgnanAttrition.csv")
+
+```
 
 ```{r, echo= TRUE}
 
