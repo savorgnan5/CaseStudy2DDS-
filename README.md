@@ -22,18 +22,18 @@ Contains our analysis, its results, and a presentation of the analysis, in the f
 
 Data
 
-Contains the Raw data in the Raw folder
+Contains the Raw data in the Raw folder :
 
-  CaseStudy2-data.csv
+   CaseStudy2-data.csv
   
-  caseStudy2Compset No Attrition.csv
+   caseStudy2Compset No Attrition.csv
   
-  CaseStudy2Compset No Salary.csv 
+   CaseStudy2Compset No Salary.csv 
   
   
-Competition data
+Competition data 
 
-Contains the data which need to be tested by the grader
+Contains the data which need to be tested by the grader :
 
   Case2PredictionSavorgnanAttrition.csv
   
@@ -46,20 +46,21 @@ Imporatant variables which we used in our model to predict attrition and monthly
 
 
 Attrition 
-  Monthly Income
+
+   Monthly Income
   
-  Over Time
+   Over Time
   
-  Stock Option Level
+   Stock Option Level
   
   
 Monthly Income 
 
-  Job Level
+   Job Level
   
-  Job Role
+   Job Role
   
-  Time Working Years 
+   Time Working Years 
   
   
 Contact Information:
