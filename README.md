@@ -10,6 +10,10 @@ We aim to find the best model to predict attrition and monthly income from the g
 
 Project structure
 
+Case Study 2 document 
+
+Iis the Assignment from the teacher.
+
 R Markdown
 
 Contains analysis and cleaning of the data, coded in R, as well as code used to generate plot etc.
