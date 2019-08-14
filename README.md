@@ -10,14 +10,14 @@ We aim to find the best model to predict attrition and monthly income from the g
 
 Project structure
 
-R script
+R Markdown
 
 Contains analysis and cleaning of the data, coded in R, as well as code used to generate plot etc.
 
 
 Analysis
 
-Contains our analysis, its results, and a presentation of the analysis, in the form of a Markdown file and a ioslides presentation
+Contains our analysis, its results, and a presentation of the analysis, in the form of ioslides presentation and HTML.
 
 
 Data
