@@ -11,6 +11,7 @@ We aim to find the best model to predict attrition and monthly income from the g
 Project structure
 
 R script
+
 Contains analysis and cleaning of the data, coded in R, as well as code used to generate plot etc.
 
 
@@ -24,14 +25,18 @@ Data
 Contains the Raw data in the Raw folder
 
   CaseStudy2-data.csv
+  
   caseStudy2Compset No Attrition.csv
+  
   CaseStudy2Compset No Salary.csv 
   
   
 Competition data
 
 Contains the data which need to be tested by the grader
+
   Case2PredictionSavorgnanAttrition.csv
+  
   Case2PredictionsSavorgnanSalary.csv
   
   
@@ -42,13 +47,18 @@ Imporatant variables which we used in our model to predict attrition and monthly
 
 Attrition 
   Monthly Income
+  
   Over Time
+  
   Stock Option Level
   
   
 Monthly Income 
+
   Job Level
+  
   Job Role
+  
   Time Working Years 
   
   
