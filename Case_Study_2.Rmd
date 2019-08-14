@@ -573,6 +573,8 @@ write.csv(predited,"Case2PredictionsSavorgnanAttrition.csv")
 
 ```
 
+
+## Link to the video https://youtu.be/SeucGT5a9gI
 ```{r, echo= TRUE}
 
 
