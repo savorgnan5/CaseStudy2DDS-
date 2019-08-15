@@ -14,7 +14,7 @@ Case Study 2 document
 
 Iis the Assignment from the teacher.
 
-R Markdown
+Case_Study_2 R Markdown
 
 Contains analysis and cleaning of the data, coded in R, as well as code used to generate plot etc.
 
