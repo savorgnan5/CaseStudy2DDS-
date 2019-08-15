@@ -1,4 +1,5 @@
 ---
+
 title: "Case Study 2"
 author: "Fabio"
 date: "8/2/2019"
@@ -10,7 +11,29 @@ output:
       smooth_scroll: false
     theme: paper
     df_print: paged
+    
 ---
+
+
+#### Executive Summary
+
+* We loaded the data
+
+* We performed an extensive exploratory analysis of the different variables in the data set in order to predict attrition and monthly income. 
+
+* We finally after a lot of trial and error choose the Naive bayes model to predict attrition with accuracy od 0,7373, Sensitivity 0.7473, Specificity 0.6857.
+
+* The variables that we used for our Naive bayes model were the following : StockOptionLevel, JobLevel, MonthlyIncome, OverTime.
+
+* The 3 most important variables that we found in this dataset which are related to attrition are the following : MonthlyIncome, OverTime, StockOptionLevel.
+
+* Also the longer that the employee spend in the company or with the current manager, or the longer that the employee are working in general it is less likely to leave their job. Other trend, single employee tend to have more attrition, the further that an employee live from work the more likely of attrition.
+
+* We choose the regression model to predict monthly income and it perform with an Adjusted R square of 0.9494, RMSE of 927.0692.
+
+* The most inportant variables that we used for the correlation model to predict monthly income were the following : TotalWorkingYears, JobLevel, JobRole.
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,6 +41,7 @@ knitr::opts_chunk$set(warning = F)
 knitr::opts_chunk$set(message = F)
 ```
 
+### Depedencies
 
 ```{r, echo= TRUE}
 library(dplyr)
@@ -44,8 +68,9 @@ library(ggpubr)
 ```
 
 ### Loading the data
+
 ```{r, echo= TRUE}
-dfdata<- readr::read_csv("CaseStudy2-data.csv")
+dfdata<- readr::read_csv("data/CaseStudy2-data.csv")
 head(dfdata)
 ```
 
@@ -411,7 +436,7 @@ levels(dfdata$MaritalStatus) <- c("NotMarried", "Married", "NotMarried")
 
 ```
 
-### Stting the dataframe for the model. After a lot of trial, this was the best model for attrition, we used Naive base model.
+### Setting the dataframe for the model. After a lot of trial, this was the best model for attrition, we used Naive bayes model.
 
 ```{r, echo= TRUE}
 clasy<- dfdata[c("Attrition", "StockOptionLevel", "JobLevel", "MonthlyIncome", "OverTime")]
@@ -479,7 +504,7 @@ varImpPlot(forest1)
 ### Setting the dataframe for monthly income, we will use regression.
 
 ```{r, echo= TRUE}
-dfdata<- readr::read_csv("CaseStudy2-data.csv")
+dfdata<- readr::read_csv("data/CaseStudy2-data.csv")
 reg <- dfdata[c("TotalWorkingYears", "YearsAtCompany", "Age", "Education", "JobLevel", "JobRole", "MonthlyIncome", "PerformanceRating", "StockOptionLevel" )]
 
 reg[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")] <- lapply(reg[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")], as.factor)
@@ -533,10 +558,10 @@ pred2 <- predict(regincome1, newdata = test)
 pred2
 ```
 
-
+### Setting the competition "salary data" with our regression model created above to predict monthly income.
 
 ```{r, echo= TRUE}
-noinc <- read_csv("CaseStudy2CompSet No Salary (2).csv")
+noinc <- read_csv("data/CaseStudy2CompSet No Salary (2).csv")
 noinc[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")] <- lapply(noinc[c("Education","JobLevel", "JobRole","PerformanceRating", "StockOptionLevel")], as.factor)
 noinc
 preds <-predict(regincome1, newdata =  noinc)
@@ -547,10 +572,10 @@ write.csv(preddf, "Case2PredictionsSavorgnanSalary.csv")
 
 
 
-
+### Setting the competition "no attrition"" data with our model created above to predict attrition 
 ```{r, echo= TRUE}
 library(readr)
-noatt <- read_csv("CaseStudy2CompSet No Attrition.csv")
+noatt <- read_csv("data/CaseStudy2CompSet No Attrition.csv")
 noatt[c("StockOptionLevel", "JobLevel", "OverTime")] <- lapply(noatt[c("StockOptionLevel", "JobLevel", "OverTime")], as.factor)
 head(noatt)
 ```
